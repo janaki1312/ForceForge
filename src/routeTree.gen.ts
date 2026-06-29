@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppForgeRouteImport } from './routes/_app.forge'
+import { Route as AppFocusRouteImport } from './routes/_app.focus'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 
 const AppRoute = AppRouteImport.update({
@@ -28,6 +29,11 @@ const AppForgeRoute = AppForgeRouteImport.update({
   path: '/forge',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFocusRoute = AppFocusRouteImport.update({
+  id: '/focus',
+  path: '/focus',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -37,11 +43,13 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AppDashboardRoute
+  '/focus': typeof AppFocusRoute
   '/forge': typeof AppForgeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AppDashboardRoute
+  '/focus': typeof AppFocusRoute
   '/forge': typeof AppForgeRoute
 }
 export interface FileRoutesById {
@@ -49,14 +57,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/focus': typeof AppFocusRoute
   '/_app/forge': typeof AppForgeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/forge'
+  fullPaths: '/' | '/dashboard' | '/focus' | '/forge'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/forge'
-  id: '__root__' | '/' | '/_app' | '/_app/dashboard' | '/_app/forge'
+  to: '/' | '/dashboard' | '/focus' | '/forge'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/_app/dashboard'
+    | '/_app/focus'
+    | '/_app/forge'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -87,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppForgeRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/focus': {
+      id: '/_app/focus'
+      path: '/focus'
+      fullPath: '/focus'
+      preLoaderRoute: typeof AppFocusRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -99,11 +121,13 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
+  AppFocusRoute: typeof AppFocusRoute
   AppForgeRoute: typeof AppForgeRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
+  AppFocusRoute: AppFocusRoute,
   AppForgeRoute: AppForgeRoute,
 }
 
