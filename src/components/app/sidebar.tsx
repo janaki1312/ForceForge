@@ -44,7 +44,9 @@ export function AppSidebar() {
                   : "hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
               )}
             >
-              <it.icon className={cn("size-4", active ? "text-primary" : "text-muted-foreground")} />
+              <it.icon
+                className={cn("size-4", active ? "text-primary" : "text-muted-foreground")}
+              />
               {it.label}
               {active && <span className="ml-auto size-1.5 rounded-full bg-primary" />}
             </Link>

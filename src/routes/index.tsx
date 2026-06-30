@@ -21,7 +21,10 @@ function Landing() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       {/* ambient glow */}
-      <div className="pointer-events-none absolute inset-0 opacity-80" style={{ background: "var(--gradient-glow)" }} />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-80"
+        style={{ background: "var(--gradient-glow)" }}
+      />
       <div className="pointer-events-none absolute -top-40 -right-40 size-[600px] rounded-full blur-3xl opacity-25 gradient-bg" />
 
       <nav className="relative z-10 flex items-center justify-between px-8 py-6">
@@ -32,12 +35,20 @@ function Landing() {
           <span className="text-lg font-semibold tracking-tight">ForceForge</span>
         </div>
         <div className="hidden gap-8 text-sm text-muted-foreground md:flex">
-          <a href="#features" className="hover:text-foreground transition">Features</a>
-          <a href="#how" className="hover:text-foreground transition">How it works</a>
-          <a href="#philosophy" className="hover:text-foreground transition">Philosophy</a>
+          <a href="#features" className="hover:text-foreground transition">
+            Features
+          </a>
+          <a href="#how" className="hover:text-foreground transition">
+            How it works
+          </a>
+          <a href="#philosophy" className="hover:text-foreground transition">
+            Philosophy
+          </a>
         </div>
         <Link to="/dashboard">
-          <Button variant="ghost" size="sm">Sign in</Button>
+          <Button variant="ghost" size="sm">
+            Launch Demo
+          </Button>
         </Link>
       </nav>
 
@@ -68,7 +79,8 @@ function Landing() {
           transition={{ duration: 0.7, delay: 0.15 }}
           className="mx-auto mt-6 max-w-2xl text-balance text-lg text-muted-foreground"
         >
-          ForceForge turns the noise in your head into a calm, prioritized plan — and quietly walks beside you until the work is done.
+          ForceForge turns the noise in your head into a calm, prioritized plan — and quietly walks
+          beside you until the work is done.
         </motion.p>
 
         <motion.div
@@ -78,13 +90,20 @@ function Landing() {
           className="mt-10 flex flex-wrap items-center justify-center gap-3"
         >
           <Link to="/dashboard">
-            <Button size="lg" className="h-12 gradient-bg text-white shadow-lg shadow-primary/30 hover:opacity-95">
-              Continue with Google
+            <Button
+              size="lg"
+              className="h-12 gradient-bg text-white shadow-lg shadow-primary/30 hover:opacity-95"
+            >
+              Get Started
               <ArrowRight className="size-4" />
             </Button>
           </Link>
           <Link to="/dashboard">
-            <Button size="lg" variant="outline" className="h-12 border-border bg-card/40 backdrop-blur">
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-12 border-border bg-card/40 backdrop-blur"
+            >
               Try demo mode
             </Button>
           </Link>
@@ -103,7 +122,9 @@ function Landing() {
                 <Brain className="size-3.5 text-accent" /> Next best action
               </div>
               <div className="text-xl font-medium">Finish DSA Question 5 — Graph traversal</div>
-              <div className="mt-1 text-sm text-muted-foreground">Highest leverage. Unblocks tomorrow's assignment.</div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                Highest leverage. Unblocks tomorrow's assignment.
+              </div>
               <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
                 {[
                   { label: "Estimated", value: "25 min" },
@@ -148,6 +169,53 @@ function Landing() {
             </div>
           ))}
         </section>
+
+          {/* How it works */}
+      <section id="how" className="mt-32">
+        <h2 className="text-4xl font-semibold text-center">
+          How it works
+        </h2>
+
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="glass-card rounded-2xl p-6 text-left">
+            <div className="text-lg font-medium">1. Brain Dump</div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Tell ForceForge everything on your mind—assignments, interviews,
+              deadlines or ideas.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 text-left">
+            <div className="text-lg font-medium">2. AI Planning</div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              The AI prioritizes tasks based on urgency, effort, deadlines and
+              execution risk.
+            </p>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 text-left">
+            <div className="text-lg font-medium">3. Execute</div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Stay focused using the dashboard, focus sessions and reflections until
+              every important task is complete.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Philosophy */}
+      <section id="philosophy" className="mt-32 text-center">
+        <h2 className="text-4xl font-semibold">
+          Our Philosophy
+        </h2>
+
+        <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground">
+          Productivity isn't about doing more. It's about doing the right thing at
+          the right time. ForceForge helps you reduce decision fatigue, stay focused,
+          and consistently finish meaningful work.
+        </p>
+      </section>
+
       </main>
 
       <footer className="relative z-10 border-t border-border/60 px-8 py-8 text-center text-xs text-muted-foreground">

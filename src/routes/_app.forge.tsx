@@ -1,9 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Mic, Sparkles, Brain, Clock, ListChecks, Flame, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfidenceBadge, PriorityBadge, RiskDot } from "@/components/app/badges";
+import { generatePlan } from "@/services/planner";
 
 export const Route = createFileRoute("/_app/forge")({
   head: () => ({ meta: [{ title: "Forge — ForceForge" }] }),
@@ -24,10 +25,34 @@ const initialMessages = [
 const plan = {
   title: "Execution plan: next 48 hours",
   steps: [
-    { title: "DSA Question 5 — Graph traversal", duration: "25 min", when: "Today · 10:00 AM", priority: "high" as const, risk: "low" as const },
-    { title: "Hackathon slide pass — story arc + demo flow", duration: "45 min", when: "Today · 2:00 PM", priority: "high" as const, risk: "medium" as const },
-    { title: "Mock interview intro + STAR examples", duration: "30 min", when: "Wed · 11:00 AM", priority: "medium" as const, risk: "low" as const },
-    { title: "DSA Q6 (stretch)", duration: "40 min", when: "Wed · 3:00 PM", priority: "medium" as const, risk: "low" as const },
+    {
+      title: "DSA Question 5 — Graph traversal",
+      duration: "25 min",
+      when: "Today · 10:00 AM",
+      priority: "high" as const,
+      risk: "low" as const,
+    },
+    {
+      title: "Hackathon slide pass — story arc + demo flow",
+      duration: "45 min",
+      when: "Today · 2:00 PM",
+      priority: "high" as const,
+      risk: "medium" as const,
+    },
+    {
+      title: "Mock interview intro + STAR examples",
+      duration: "30 min",
+      when: "Wed · 11:00 AM",
+      priority: "medium" as const,
+      risk: "low" as const,
+    },
+    {
+      title: "DSA Q6 (stretch)",
+      duration: "40 min",
+      when: "Wed · 3:00 PM",
+      priority: "medium" as const,
+      risk: "low" as const,
+    },
   ],
   reasoning: [
     "DSA first — small, finishable win clears mental load.",
@@ -48,19 +73,72 @@ function Forge() {
   const [input, setInput] = useState("");
   const [thinking, setThinking] = useState(false);
   const [thinkIdx, setThinkIdx] = useState(0);
+  const [planData, setPlanData] = useState<any>(null);
+  const navigate = useNavigate();
+  const [helpTask, setHelpTask] = useState("");
 
-  const send = () => {
+  useEffect(() => {
+  const task = localStorage.getItem("forceforge-help-task");
+
+  if (task) {
+    setHelpTask(task);
+    setInput(task);
+
+    setMessages((m) => [
+      ...m,
+      {
+        role: "ai",
+        text: `Let's solve: ${task}`,
+      },
+    ]);
+
+    localStorage.removeItem("forceforge-help-task");
+  }
+}, []);
+
+
+  const send = async () => {
     if (!input.trim()) return;
     setMessages((m) => [...m, { role: "user", text: input }]);
     setInput("");
     setThinking(true);
     setThinkIdx(0);
-    const iv = setInterval(() => setThinkIdx((i) => (i + 1) % thinkingStates.length), 900);
-    setTimeout(() => {
+    const iv = setInterval(() => {
+      setThinkIdx((i) => (i + 1) % thinkingStates.length);
+    }, 900);
+
+    try {
+      const result = await generatePlan(input);
+      localStorage.setItem("forceforge-plan", JSON.stringify(result));
+
       clearInterval(iv);
       setThinking(false);
-      setMessages((m) => [...m, { role: "ai", text: "I've updated your plan with this new context. See the right panel." }]);
-    }, 2600);
+
+      setPlanData(result);
+
+      setTimeout(() => {
+        navigate({ to: "/dashboard" });
+      }, 1500);
+
+      setMessages((m) => [
+        ...m,
+        {
+          role: "ai",
+          text: "Your execution plan is ready. I've prioritized your work based on deadlines, effort and risk. You can review the full strategy on the right or in the Dashboard.",
+        },
+      ]);
+    } catch (err) {
+      clearInterval(iv);
+      setThinking(false);
+
+      setMessages((m) => [
+        ...m,
+        {
+          role: "ai",
+          text: "Something went wrong while generating your plan.",
+        },
+      ]);
+    }
   };
 
   return (
@@ -72,7 +150,9 @@ function Forge() {
             <Sparkles className="size-3.5 text-white" />
           </div>
           <div className="font-medium">Forge</div>
-          <span className="text-xs text-muted-foreground">Think out loud. I'll turn it into a plan.</span>
+          <span className="text-xs text-muted-foreground">
+            Think out loud. I'll turn it into a plan.
+          </span>
         </div>
 
         <div className="flex-1 space-y-4 overflow-y-auto pr-2">
@@ -100,7 +180,12 @@ function Forge() {
 
           <AnimatePresence>
             {thinking && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2 text-xs text-muted-foreground"
+              >
                 <span className="relative flex size-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                   <span className="relative inline-flex size-2 rounded-full bg-accent" />
@@ -113,6 +198,7 @@ function Forge() {
 
         <div className="mt-4 rounded-2xl border border-border bg-card/60 p-2">
           <textarea
+            disabled={thinking}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -129,8 +215,8 @@ function Forge() {
             <Button variant="ghost" size="sm" className="text-muted-foreground">
               <Mic className="size-4" /> Voice
             </Button>
-            <Button size="sm" className="gradient-bg text-white" onClick={send}>
-              <Send className="size-3.5" /> Send
+            <Button size="sm" className="gradient-bg text-white" onClick={send} disabled={!input.trim() || thinking}>
+              <Send className="size-3.5" /> {thinking ? "Generating..." : "Send"}
             </Button>
           </div>
         </div>
@@ -138,39 +224,60 @@ function Forge() {
 
       {/* Right: generated cards */}
       <section className="min-h-0 space-y-4 overflow-y-auto pr-1">
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card rounded-3xl p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card rounded-3xl p-6"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm">
               <ListChecks className="size-4 text-primary" />
-              <div className="font-medium">{plan.title}</div>
+              <div className="font-medium">{planData?.objective ?? plan.title}</div>
             </div>
-            <ConfidenceBadge value={86} />
+            <ConfidenceBadge
+              value={
+                planData?.risk?.level === "LOW" ? 95 : planData?.risk?.level === "MEDIUM" ? 85 : 70
+              }
+            />
           </div>
           <ol className="mt-4 space-y-2">
-            {plan.steps.map((s, i) => (
-              <li key={i} className="flex items-center gap-3 rounded-2xl border border-border bg-card/50 p-3">
-                <div className="grid size-7 place-items-center rounded-lg border border-border bg-background text-xs">{i + 1}</div>
+            {(planData?.execution_plan ?? plan.steps).map((s: any, i: number) => (
+              <li
+                key={i}
+                className="flex items-center gap-3 rounded-2xl border border-border bg-card/50 p-3"
+              >
+                <div className="grid size-7 place-items-center rounded-lg border border-border bg-background text-xs">
+                  {i + 1}
+                </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium">{s.title}</div>
+                  <div className="truncate text-sm font-medium">{s.title ?? s.task}</div>
                   <div className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1"><Clock className="size-3" /> {s.duration}</span>
-                    <span>· {s.when}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="size-3" />{" "}
+                      {s.duration ?? `${s.estimated_minutes ?? s.effortMinutes ?? 0} min`}
+                    </span>
+                    <span>· {s.when ?? s.deadline}</span>
                     <RiskDot value={s.risk} />
                   </div>
                 </div>
-                <PriorityBadge value={s.priority} />
+                <PriorityBadge value={(s.priority ?? "medium").toLowerCase()} />
               </li>
             ))}
           </ol>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card rounded-3xl p-6">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-card rounded-3xl p-6"
+        >
           <div className="flex items-center gap-2 text-sm">
             <Brain className="size-4 text-accent" />
             <div className="font-medium">Why this order?</div>
           </div>
           <ul className="mt-3 space-y-2 text-sm text-foreground/90">
-            {plan.reasoning.map((r, i) => (
+            {(planData ? [planData.reasoning] : plan.reasoning).map((r: string, i: number) => (
               <li key={i} className="flex gap-2">
                 <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" /> {r}
               </li>
@@ -180,14 +287,29 @@ function Forge() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="glass-card rounded-3xl p-5">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground"><Flame className="size-3.5 text-primary" /> Next best action</div>
-            <div className="mt-2 text-sm font-medium">Start with DSA Q5</div>
-            <div className="mt-1 text-xs text-muted-foreground">25 min · low risk · clears mental load</div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Flame className="size-3.5 text-primary" /> Next best action
+            </div>
+            <div className="mt-2 text-sm font-medium">
+              {planData?.next_best_action?.title ?? "Start with DSA Q5"}
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {planData
+                ? `${planData.next_best_action.estimated_minutes} min • ${planData.next_best_action.reason}`
+                : "25 min · low risk · clears mental load"}
+            </div>
           </div>
           <div className="glass-card rounded-3xl p-5">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-3.5 text-success" /> Buffer</div>
-            <div className="mt-2 text-sm font-medium">2h 40m of slack</div>
-            <div className="mt-1 text-xs text-muted-foreground">Healthy headroom for the unexpected.</div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <ShieldCheck className="size-3.5 text-yellow-500" />
+              Risk
+            </div>
+
+            <div className="mt-2 text-sm font-medium">{planData?.risk?.level ?? "Low"}</div>
+
+            <div className="mt-1 text-xs text-muted-foreground">
+              {planData?.risk?.reason ?? "No major risks detected."}
+            </div>
           </div>
         </div>
       </section>

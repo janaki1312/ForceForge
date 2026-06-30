@@ -7,7 +7,16 @@ export function PriorityBadge({ value }: { value: Priority }) {
     medium: "bg-warning/15 text-warning",
     high: "bg-primary/15 text-primary",
   };
-  return <span className={cn("rounded-md px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider", map[value])}>{value}</span>;
+  return (
+    <span
+      className={cn(
+        "rounded-md px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider",
+        map[value],
+      )}
+    >
+      {value}
+    </span>
+  );
 }
 
 export function RiskDot({ value }: { value: Risk }) {

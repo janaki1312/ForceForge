@@ -78,10 +78,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ForceForge — From Intention to Execution" },
-      { name: "description", content: "AI execution companion that turns messy thoughts into focused action." },
+      {
+        name: "description",
+        content: "AI execution companion that turns messy thoughts into focused action.",
+      },
       { name: "author", content: "ForceForge" },
       { property: "og:title", content: "ForceForge — From Intention to Execution" },
-      { property: "og:description", content: "AI execution companion that turns messy thoughts into focused action." },
+      {
+        property: "og:description",
+        content: "AI execution companion that turns messy thoughts into focused action.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
